@@ -3,6 +3,7 @@ package main
 import (
 	_ "bufio"
 	"errors"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"net/http"
@@ -40,6 +41,9 @@ func getRecords(OAuth ultradns.OAuthResponse, zone string, recordType string) (R
 	return r, err
 }
 func main() {
+	recordType := flag.String("r", "A", "Record Set Type")
+	flag.Parse()
+
 	credsBuf, err := ioutil.ReadFile("./creds.json")
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -50,8 +54,16 @@ func main() {
 		fmt.Printf("Cannot continue: %s\n", err)
 		return
 	}
+	// List all zones
 	zones, err := ultradns.GetZones(OAuth)
 	for _, v := range zones.List {
-		fmt.Printf("%s\n", v)
+		// List all A records in each Zone
+		fmt.Printf("%s\n", v.Properties.Name)
+		records, _ := getRecords(OAuth, v.Properties.Name, *recordType)
+		for _, r := range records.RRSets {
+			for _, z := range r.Rdata {
+				fmt.Printf("\t%v\n", z)
+			}
+		}
 	}
 }
