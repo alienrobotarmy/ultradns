@@ -16,7 +16,7 @@ type Records struct {
 	RRSets   []RecordsResourceSets `json:"rrSets"`
 }
 
-func getRecords(OAuth OAuthResponse, zone string, recordType string) (Records, error) {
+func GetRecords(OAuth OAuthResponse, zone string, recordType string) (Records, error) {
 	var r Records
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", "https://restapi.ultradns.com/v2/zones/"+
